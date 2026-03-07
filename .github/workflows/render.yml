@@ -1,0 +1,38 @@
+name: Update Weather Avatar
+
+on:
+  schedule:
+    - cron: '0 * * * *'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          pip install pygame Pillow requests
+
+      - name: Render GIF
+        env:
+          WEATHER_API_KEY: ${{ secrets.WEATHER_API_KEY }}
+        run: python main.py
+
+      - name: Push Update
+        run: |
+          git config --local user.email "nguyenkhangle2410@gmail.com"
+          git config --local user.name "nguyenkhangle2410-sudo"
+          git add live_aether_avatar.gif
+          git commit --amend -m "Update weather GIF: $(date)" || git commit -m "Update weather GIF"
+          git push --force
